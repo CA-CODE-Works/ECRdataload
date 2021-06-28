@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECRdataload", "ECRdataload\ECRdataload.csproj", "{20EBFA87-CB4A-443E-AAEB-8233B979AEB9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20EBFA87-CB4A-443E-AAEB-8233B979AEB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20EBFA87-CB4A-443E-AAEB-8233B979AEB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20EBFA87-CB4A-443E-AAEB-8233B979AEB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20EBFA87-CB4A-443E-AAEB-8233B979AEB9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {90D8E287-013E-439B-833F-F6722D886A8E}
+	EndGlobalSection
+EndGlobal

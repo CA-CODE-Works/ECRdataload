@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ecrdataload": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Key": "Value",
+        "NETCORE_ENVIRONMENT": "development"
+      }
+    }
+  }
+}
