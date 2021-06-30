@@ -26,12 +26,12 @@ namespace ECRdataload
         static void Main(string[] args)
         {
             bool isFullFile = false;
+            // if passing Full argument, perform full data load
             if (args.Length > 0 && args[0].Equals("Full"))
                 isFullFile = true;
 
             bool isDevelopment = false;
             var devEnvironmentVariable = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
-
 
             if (!string.IsNullOrEmpty(devEnvironmentVariable) && devEnvironmentVariable.ToLower() == "development")
                 isDevelopment = true;
@@ -49,11 +49,7 @@ namespace ECRdataload
             }
 
 
-            /*
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile($"appsettings.json", true, true)
-                .AddEnvironmentVariables();
-            */
+            // get config values from appsettings.json
             var config = builder.Build();
             string ConnectionString = config["ConnectionString"];
             int Retry = Int32.Parse(config["FtpSite:Retry"]);
@@ -64,8 +60,8 @@ namespace ECRdataload
             string databaseEnv = config["Smtp:DatabaseEnv"];
             int mailPort = Int32.Parse(config["Smtp:Port"]);
             string ftpFileName = databaseEnv.Length > 0 ? errorTestFileName : errorFileName;
-
             MailMessage message = new MailMessage(config["Smtp:FromAddress"], toCDTAddress);
+
             // get DB connection
             connection(ConnectionString);
 
@@ -75,14 +71,14 @@ namespace ECRdataload
             DateTime lastmodified = new DateTime();
             try
             {
-                // get CalHR transaction file
+                // get CalHR transaction file and get the file modified date
                 Policy
                     .Handle<Exception>()
                     .WaitAndRetry(Retry, retryAttempt => TimeSpan.FromSeconds(WaitSec))
                     .Execute(() => lastmodified = downloadFtpFile(employeedataStream, config, isFullFile));
                 DateTime lastLoadedDt = getLoadDate();
 
-                // Do not process if no new file found, unless it is a full data load
+                // Do not process if no new transaction file found, unless it is a full data load
                 if (lastmodified > lastLoadedDt || isFullFile)
                 {
                     // Decrypt trsansaction data 
@@ -158,7 +154,7 @@ namespace ECRdataload
             }
         }
 
-        // Get last load date
+        // Get last loaded date from ECRTransactionFile
         private static DateTime getLoadDate()
         {
             DateTime lastLoadedDt = new DateTime();
@@ -232,15 +228,14 @@ namespace ECRdataload
 
             con.Open();
 
-            // Initialize trsnsaction table
+            // Delete records from ECRTransactionFile table
             SqlCommand cmd = new SqlCommand("Truncate Table [EmployeeCoreRecord].[dbo].[ECRTransactionFile]", con);
             cmd.ExecuteNonQuery();
 
-            // Use SqlBulkCopy to insert data
+            // Use SqlBulkCopy to insert employee data
             SqlBulkCopy objbulk = new SqlBulkCopy(con);
             objbulk.DestinationTableName = "ECRTransactionFile";
             objbulk.WriteToServer(tblcsv);
-
 
             // Execute stored procedure to perform database update
             cmd = new SqlCommand("pLoadEmployeeInfo", con);
@@ -255,8 +250,7 @@ namespace ECRdataload
                 throw new Exception(string.Format("ECR Stored Procedure 'pLoadEmployeeInfo' failed.<BR><BR> {0}", message));
             }
 
-
-            // Execute stored procedure to change record status to 2 that are not in Full file
+            // Execute stored procedure for Full Data Load only. Change recordstatus of UEID that does not exist in transacton file
             if (isFullFile)
             {
                 cmd = new SqlCommand("pDeleteEmployee", con);
@@ -265,7 +259,7 @@ namespace ECRdataload
             }
 
 
-            // Create Transaction Error csv file and upload it back to CalHR.
+            // Create Transaction Error csv file and upload to CalHR.
             List<string> columnList = new List<string> { "TransactionCode"
                 ,"UEID", "Gender"
                 ,"City","State","ZipCode","Ethnicity","AgencyCode","ClassCode","ClassType","BargainingUnit"
@@ -330,12 +324,6 @@ namespace ECRdataload
                             .Handle<Exception>()
                             .WaitAndRetry(Int32.Parse(config["FtpSite:Retry"]), retryAttempt => TimeSpan.FromSeconds(Int32.Parse(config["FtpSite:WaitSec"])))
                             .Execute(() => uploadFtpFile(csvStream, config, ftpFile));
-
-                        /*
-                        var fileStream = File.Create(@"D:\ECR\"+ errorFileName);
-                        csvStream.CopyTo(fileStream);
-                        fileStream.Close();
-                        */
                     }
 
                 }
