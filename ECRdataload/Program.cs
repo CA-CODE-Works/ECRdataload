@@ -109,8 +109,7 @@ namespace ECRdataload
                     message.Subject = "ECR New Transaction File Missing" + databaseEnv;
                     message.IsBodyHtml = true;
                     message.To.Add(new MailAddress(toAddress));
-                    message.Body = "File: " + config["FtpSite:DownloadFileName"] + "<br>Last Modified Date: " + lastmodified.ToString()
-                        + "<br>Last Data Load Date: " + lastLoadedDt.ToString();
+                    message.Body = "No new " + config["FtpSite:DownloadFileName"] + " file found.";
                     sendMail(mailHost, mailPort, message);
                 }
 
@@ -130,13 +129,18 @@ namespace ECRdataload
             using (var sftp = new SftpClient(ftpconfig["FtpSite:Host"], Int32.Parse(ftpconfig["FtpSite:Port"]), ftpconfig["FtpSite:Username"], ftpconfig["FtpSite:Password"]))
             {
                 sftp.Connect();
-                sftp.ChangeDirectory(ftpconfig["FtpSite:DownloadDirectory"]);
-                string downloadtype = ftpconfig["FtpSite:DownloadType"];
-                if (isFullFile)
-                    sftp.DownloadFile(ftpconfig["FtpSite:DownloadFullFileName"], datastream);
-                else
-                    sftp.DownloadFile(ftpconfig["FtpSite:DownloadFileName"], datastream);
-                var modft = sftp.GetLastWriteTime(ftpconfig["FtpSite:DownloadFileName"]);
+                DateTime modft = new DateTime();
+                string downloadfile = ftpconfig["FtpSite:DownloadDirectory"] + "/" + ftpconfig["FtpSite:DownloadFileName"];
+                if (sftp.Exists(downloadfile))
+                {
+                    sftp.ChangeDirectory(ftpconfig["FtpSite:DownloadDirectory"]);
+                    string downloadtype = ftpconfig["FtpSite:DownloadType"];
+                    if (isFullFile)
+                        sftp.DownloadFile(ftpconfig["FtpSite:DownloadFullFileName"], datastream);
+                    else
+                        sftp.DownloadFile(ftpconfig["FtpSite:DownloadFileName"], datastream);
+                    modft = sftp.GetLastWriteTime(ftpconfig["FtpSite:DownloadFileName"]);
+                }
                 sftp.Disconnect();
                 return modft;
             }
