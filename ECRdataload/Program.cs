@@ -233,7 +233,7 @@ namespace ECRdataload
             con.Open();
 
             // Delete records from ECRTransactionFile table
-            SqlCommand cmd = new SqlCommand("Truncate Table [EmployeeCoreRecord].[dbo].[ECRTransactionFile]", con);
+            SqlCommand cmd = new SqlCommand("Truncate Table [ECRTransactionFile]", con);
             cmd.ExecuteNonQuery();
 
             // Use SqlBulkCopy to insert employee data
