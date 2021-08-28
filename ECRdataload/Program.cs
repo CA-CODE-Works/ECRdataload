@@ -239,6 +239,7 @@ namespace ECRdataload
             // Use SqlBulkCopy to insert employee data
             SqlBulkCopy objbulk = new SqlBulkCopy(con);
             objbulk.DestinationTableName = "ECRTransactionFile";
+            objbulk.BulkCopyTimeout = 3600;
             objbulk.WriteToServer(tblcsv);
 
             // Execute stored procedure to perform database update
