@@ -255,7 +255,7 @@ namespace ECRdataload
                 throw new Exception(string.Format("ECR Stored Procedure 'pLoadEmployeeInfo' failed.<BR><BR> {0}", message));
             }
 
-            // Execute stored procedure for Full Data Load only. Change recordstatus of UEID that does not exist in transacton file
+            // Execute stored procedure for Full Data Load only. Change recordstatus to 2 for UEIDs that not in transacton file
             if (isFullFile)
             {
                 cmd = new SqlCommand("pDeleteEmployee", con);
