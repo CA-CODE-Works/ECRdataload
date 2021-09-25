@@ -79,7 +79,7 @@ namespace ECRdataload
                 DateTime lastLoadedDt = getLoadDate();
 
                 // Do not process if no new transaction file found, unless it is a full data load
-                if (lastmodified > lastLoadedDt || isFullFile)
+                if (lastmodified > lastLoadedDt)
                 {
                     // Decrypt trsansaction data 
                     using (PGP pgp = new PGP())
@@ -109,7 +109,10 @@ namespace ECRdataload
                     message.Subject = "ECR New Transaction File Missing" + databaseEnv;
                     message.IsBodyHtml = true;
                     message.To.Add(new MailAddress(toAddress));
-                    message.Body = "No new " + config["FtpSite:DownloadFileName"] + " file found.";
+                    if (isFullFile)
+                        message.Body = "No new " + config["FtpSite:DownloadFullFileName"] + " file found.";
+                    else
+                        message.Body = "No new " + config["FtpSite:DownloadFileName"] + " file found.";
                     sendMail(mailHost, mailPort, message);
                 }
 
