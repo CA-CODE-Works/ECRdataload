@@ -19,6 +19,8 @@ namespace ECRdataload
         static SqlConnection con;
         static string errorFileName = "ECR_Upload_Errors" + DateTime.Now.ToString("yyyMMdd_HH") + ".csv";
         static string errorTestFileName = "PreProd_ECR_Upload_Errors" + DateTime.Now.ToString("yyyMMdd_HH") + ".csv";
+        static string errorFullFileName = "ECR_Full_Upload_Errors" + DateTime.Now.ToString("yyyMMdd_HH") + ".csv";
+        static string errorFullTestFileName = "PreProd_Full_ECR_Upload_Errors" + DateTime.Now.ToString("yyyMMdd_HH") + ".csv";
         static private void connection(string dbcon)
         {
             con = new SqlConnection(dbcon);
@@ -59,7 +61,11 @@ namespace ECRdataload
             string toAddress = config["Smtp:ToAddress"];
             string databaseEnv = config["Smtp:DatabaseEnv"];
             int mailPort = Int32.Parse(config["Smtp:Port"]);
-            string ftpFileName = databaseEnv.Length > 0 ? errorTestFileName : errorFileName;
+            string ftpFileName;
+            if (isFullFile)
+                ftpFileName = databaseEnv.Length > 0 ? errorFullTestFileName : errorFullFileName;
+            else
+                ftpFileName = databaseEnv.Length > 0 ? errorTestFileName : errorFileName;
             MailMessage message = new MailMessage(config["Smtp:FromAddress"], toCDTAddress);
 
             // get DB connection
