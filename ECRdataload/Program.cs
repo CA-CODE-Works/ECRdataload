@@ -183,6 +183,23 @@ namespace ECRdataload
             return lastLoadedDt;
         }
 
+        // validate number of records from ECRTransactionFile
+        private static bool validateTransCount()
+        {
+            string query = "select (select count(*) from employee where recordstatusid = 1) - (select count(*) from ecrtransactionFile where invalidrecord = 0)";
+            Int32 diffCount = 9999999;
+            // Initialize trsnsaction table
+            SqlCommand cmd = new SqlCommand(query, con);
+            using (SqlDataReader sdr = cmd.ExecuteReader())
+            {
+                if (sdr.Read())
+                    diffCount = sdr.GetInt32(0);
+            }
+            if (diffCount > 10000)
+                return false;
+            return true;
+        }
+
         // Truncate table and call stored procedure to update database
         private static int updateDatabase(Stream inFile, string ConnectionString, IConfigurationRoot config, bool isFullFile, string ftpFile)
         {
@@ -265,7 +282,7 @@ namespace ECRdataload
             }
 
             // Execute stored procedure for Full Data Load only. Change recordstatus to 2 for UEIDs that not in transacton file
-            if (isFullFile)
+            if (isFullFile && validateTransCount())
             {
                 cmd = new SqlCommand("pDeleteEmployee", con);
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
